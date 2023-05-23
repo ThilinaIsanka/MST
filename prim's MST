@@ -1,0 +1,95 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+#define INF 100000
+
+
+struct Edge {
+    int from, to, w;
+};
+
+class Graph {
+    int V;
+    vector<vector<int>> graph;
+
+public:
+
+    // fuctions
+
+    // define graph
+    Graph(int vertices) {
+        V = vertices;
+        graph.resize(V, vector<int>(V, 0));
+    }
+
+
+    // add edge to graph
+    void addEdge(int from, int to, int w) {
+        graph[from][to] = w;
+        graph[to][from] = w;
+    }
+
+
+    // find minimum weighted edge
+    int find_min(vector<int>& key, vector<bool>& mstSet) {
+        int minKey = INF, minIndex = -1;
+        for (int v = 0; v < V; ++v) {
+            if (!mstSet[v] && key[v] < minKey) {
+                minKey = key[v];
+                minIndex = v;
+            }
+        }
+        return minIndex;
+    }
+
+    // print the MST
+    void print_graph(vector<int>& parent) {
+        cout << "Edge \tw\n";
+        for (int v = 1; v < V; ++v) {
+            cout << parent[v] << " - " << v << "\t" << graph[v][parent[v]] << "\n";
+        }
+    }
+
+    // implement prim's algorithm
+    void primsMST(int startNode) {
+        vector<int> key(V, INF);
+        vector<bool> mstSet(V, false);
+        vector<int> parent(V, -1);
+
+        key[startNode] = 0;
+
+        for (int count = 0; count < V - 1; ++count) {
+            int u = find_min(key, mstSet);
+            mstSet[u] = true;
+
+            for (int v = 0; v < V; ++v) {
+                if (graph[u][v] && !mstSet[v] && graph[u][v] < key[v]) {
+                    parent[v] = u;
+                    key[v] = graph[u][v];
+                }
+            }
+        }
+        print_graph(parent);
+    }
+};
+
+int main() {
+    int V = 6; 
+    Graph g(V);
+
+    g.addEdge(0, 1, 3);
+    g.addEdge(1, 2, 2);
+    g.addEdge(1, 4, 10);
+    g.addEdge(0, 5, 1);
+    g.addEdge(3, 1, 1);
+    g.addEdge(2, 5, 5);
+    g.addEdge(2, 3, 3);
+    g.addEdge(3, 4, 5);
+    g.addEdge(4, 5, 4);
+
+    g.primsMST(0);
+    return 0;
+}
